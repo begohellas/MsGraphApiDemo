@@ -1,8 +1,10 @@
 ﻿using Microsoft.Graph.Models.ODataErrors;
 using MsGraphApiDemo;
+using MsGraphApiDemo.GraphProviders;
+using MsGraphApiDemo.Settings;
 using Spectre.Console;
 
-var loadedSettings = Settings.LoadSettings();
+var loadedSettings = AppSettings.LoadSettings();
 InitializeGraph(loadedSettings);
 
 bool exit = false;
@@ -74,7 +76,7 @@ while (!exit)
 
 return;
 
-void InitializeGraph(Settings settings)
+void InitializeGraph(AppSettings settings)
 {
 	GraphHelper.InitializeGraphForUserAuth(settings);
 }
@@ -115,7 +117,7 @@ async Task DisplayMeUserAsync()
 	}
 }
 
-async Task DisplayUserAsync(Settings settings)
+async Task DisplayUserAsync(AppSettings settings)
 {
 	var userId = AnsiConsole.Ask<string>($"Enter user's objectID or UPN to search in TenantID [silver]{settings.TenantId}[/]: ");
 	userId ??= string.Empty;
@@ -152,7 +154,7 @@ async Task DisplayUserAsync(Settings settings)
 	}
 }
 
-async Task DisplayUsersAsync(Settings settings)
+async Task DisplayUsersAsync(AppSettings settings)
 {
 	try
 	{
@@ -185,7 +187,7 @@ async Task DisplayUsersAsync(Settings settings)
 	}
 }
 
-async Task DisplayUsersByMailAsync(Settings settings)
+async Task DisplayUsersByMailAsync(AppSettings settings)
 {
 	Console.Write($"Enter user's mail to search in TenantID {settings.TenantId}: ");
 	var userMail = Console.ReadLine() ?? string.Empty;
@@ -223,7 +225,7 @@ async Task DisplayUsersByMailAsync(Settings settings)
 	}
 }
 
-async Task DisplayListGroupsAsync(Settings settings)
+async Task DisplayListGroupsAsync(AppSettings settings)
 {
 	try
 	{

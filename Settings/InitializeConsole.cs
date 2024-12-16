@@ -1,7 +1,7 @@
 ﻿using Spectre.Console;
 using System.Runtime.CompilerServices;
 
-namespace MsGraphApiDemo;
+namespace MsGraphApiDemo.Settings;
 internal static class InitializeConsole
 {
 	[ModuleInitializer]

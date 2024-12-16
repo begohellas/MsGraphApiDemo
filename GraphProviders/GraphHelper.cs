@@ -3,15 +3,15 @@ using Microsoft.Graph;
 using Microsoft.Graph.Models;
 using Microsoft.Identity.Client;
 using Microsoft.Kiota.Abstractions.Authentication;
-using MsGraphApiDemo.GraphProviders;
 using MsGraphApiDemo.Models;
+using MsGraphApiDemo.Settings;
 using Spectre.Console;
 
-namespace MsGraphApiDemo;
+namespace MsGraphApiDemo.GraphProviders;
 internal static class GraphHelper
 {
 	internal const int UsersTop = 20;
-	private static Settings? _settings;
+	private static AppSettings? _settings;
 
 	// Client configured with user authentication
 	private static GraphServiceClient? _graphClient;
@@ -22,12 +22,12 @@ internal static class GraphHelper
 	public static string AccessToken { get; private set; } = string.Empty;
 	public static DateTimeOffset AccessTokenExpiresOn { get; private set; } = DateTimeOffset.MinValue;
 
-	public static void InitializeGraphForUserAuth(Settings settings)
+	public static void InitializeGraphForUserAuth(AppSettings appSettings)
 	{
-		_settings = settings;
+		_settings = appSettings;
 
 		// initialiaze graph client with client secret auth
-		InitializeClientSecretAuth(settings);
+		InitializeClientSecretAuth(appSettings);
 
 		// initialiaze graph client with token provider and IAuthenticationProvider
 		//InitializeTokenProvider(settings);
@@ -148,12 +148,12 @@ internal static class GraphHelper
 		result?.Value?.ForEach(x => Console.WriteLine(x.Subject));
 	}
 
-	private static void InitializeClientSecretAuth(Settings settings)
+	private static void InitializeClientSecretAuth(AppSettings appSettings)
 	{
-		ArgumentNullException.ThrowIfNull(settings);
+		ArgumentNullException.ThrowIfNull(appSettings);
 
 		// Validate required settings
-		ValidateSettings(settings);
+		ValidateSettings(appSettings);
 
 		ClientSecretCredentialOptions clientSecretCredentialOptions = new()
 		{
@@ -165,35 +165,35 @@ internal static class GraphHelper
 				IsAccountIdentifierLoggingEnabled = true,
 			}
 		};
-		var clientSecretCredential = new ClientSecretCredential(settings.TenantId, settings.ClientId, settings.ClientSecret, clientSecretCredentialOptions);
+		var clientSecretCredential = new ClientSecretCredential(appSettings.TenantId, appSettings.ClientId, appSettings.ClientSecret, clientSecretCredentialOptions);
 		var chainedCredential = new ChainedTokenCredential(clientSecretCredential);
 
-		_tokenProvider = new TokenProviderWithAzureCredential(chainedCredential, settings.GraphUserScopes!);
+		_tokenProvider = new TokenProviderWithAzureCredential(chainedCredential, appSettings.GraphUserScopes!);
 	}
 
-	private static void InitializeTokenProvider(Settings settings)
+	private static void InitializeTokenProvider(AppSettings appSettings)
 	{
 		// Validate required settings
-		ValidateSettings(settings);
+		ValidateSettings(appSettings);
 
 		var confidentialClientApplication = ConfidentialClientApplicationBuilder
-						.Create(settings.ClientId)
-						.WithClientSecret(settings.ClientSecret)
-						.WithTenantId(settings.TenantId)
+						.Create(appSettings.ClientId)
+						.WithClientSecret(appSettings.ClientSecret)
+						.WithTenantId(appSettings.TenantId)
 						.Build();
 
-		_tokenProvider = new TokenProviderWithConfidentialApp(confidentialClientApplication, settings.GraphUserScopes!);
+		_tokenProvider = new TokenProviderWithConfidentialApp(confidentialClientApplication, appSettings.GraphUserScopes!);
 	}
 
-	private static void ValidateSettings(Settings settings)
+	private static void ValidateSettings(AppSettings appSettings)
 	{
-		if (string.IsNullOrEmpty(settings.TenantId) ||
-			string.IsNullOrEmpty(settings.ClientId) ||
-			string.IsNullOrEmpty(settings.ClientSecret) ||
-			settings.GraphUserScopes is null ||
-			settings.GraphUserScopes.Length == 0)
+		if (string.IsNullOrEmpty(appSettings.TenantId) ||
+			string.IsNullOrEmpty(appSettings.ClientId) ||
+			string.IsNullOrEmpty(appSettings.ClientSecret) ||
+			appSettings.GraphUserScopes is null ||
+			appSettings.GraphUserScopes.Length == 0)
 		{
-			throw new ArgumentException("Invalid settings. Please check the appsettings.json file.", nameof(settings));
+			throw new ArgumentException("Invalid settings. Please check the appsettings.json file.", nameof(appSettings));
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace MsGraphApiDemo;
+﻿namespace MsGraphApiDemo.Settings;
 public enum MenuChoice
 {
 	Exit = 0,
